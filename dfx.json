@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "apollo_backend": {
+      "main": "src/apollo_backend/main.mo",
+      "type": "motoko"
+    },
+    "apollo_frontend": {
+      "dependencies": [
+        "apollo_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/apollo_frontend/src/index.html"
+      },
+      "source": [
+        "src/apollo_frontend/assets",
+        "dist/apollo_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
