@@ -1,29 +1,34 @@
 {
   "canisters": {
-    "apollo_backend": {
-      "main": "src/apollo_backend/main.mo",
-      "type": "motoko"
+    "backend": {
+      "type": "motoko",
+      "main": "backend/Backend.mo"
     },
-    "apollo_frontend": {
-      "dependencies": [
-        "apollo_backend"
-      ],
+    "frontend": {
+      "dependencies": ["backend"],
+      "type": "assets",
+      "source": ["dist/"],
       "frontend": {
-        "entrypoint": "src/apollo_frontend/src/index.html"
-      },
-      "source": [
-        "src/apollo_frontend/assets",
-        "dist/apollo_frontend/"
-      ],
-      "type": "assets"
+        "entrypoint": "src/index.html"
+      }
+    },
+    "internet_identity": {
+      "type": "pull",
+      "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
+    "whoami": {
+      "type": "motoko",
+      "main": "backend/whoami.mo",
+      "declarations": {
+        "node_compatibility": true
+      }
     }
   },
   "defaults": {
     "build": {
-      "args": "",
-      "packtool": ""
+      "packtool": "npm run --silent sources"
     }
   },
   "output_env_file": ".env",
-  "version": 1
+  "version": 2
 }
