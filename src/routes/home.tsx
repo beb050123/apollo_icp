@@ -50,10 +50,11 @@ export default function Home() {
             <div>
               <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Apollo Launch: Fractional Real Estate Investing on the Internet
-                Computer
+                Computer Protocol
               </h5>
               <p className="mb-5 font-normal text-gray-400 dark:text-gray-400">
-                Data driven real estate investing on the Internet Computer.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </p>
             </div>
             <div className="flex justify-end">
@@ -67,8 +68,8 @@ export default function Home() {
           <div className="flex flex-col justify-between p-4 shadow-lg min-w-[650px] min-h-[350px] max-w-[650px] max-h-[350px] mx-auto bg-base rounded-lg border sm:p-6 lg:p-8 border border-base-100 bg-gray-800 shadow-[5px_5px_0px_0px_rgba(255,107,0)] ">
             <div>
               <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                Apollo Launch: Fractional Real Estate Investing on the Internet
-                Computer
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </h5>
               <p className="mb-5 font-normal text-gray-400 dark:text-gray-400">
                 Data driven real estate investing on the Internet Computer.
@@ -93,9 +94,7 @@ export default function Home() {
           </button>
         </div>
         <div className="bg-gray-800 w-full h-full mt-10 p-4 rounded rounded-lg">
-          <div>
-            <StockChart {...chartProps} />
-          </div>
+          <div>{'CHART PLACEHOLDER'}</div>
         </div>
       </div>
     </div>
