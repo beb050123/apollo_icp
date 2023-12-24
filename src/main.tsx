@@ -4,12 +4,17 @@ import App from './App';
 import './App.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './routes/home';
+import Mint from './routes/mint';
 import { AuthProvider } from './contexts/authContext';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Home />,
+  },
+  {
+    path: '/mint',
+    element: <Mint />,
   },
 ]);
 

@@ -70,10 +70,23 @@ body {
   }
 }
 
-.card {
-  padding: 2em;
-}
-
 .read-the-docs {
   color: #888;
+}
+
+.countdown {
+  display: inline-block;
+  margin-right: 5px; /* Adjust as needed */
+}
+
+/* Custom properties for dynamic values */
+.countdown {
+  --value: 0; /* Default value */
+}
+
+/* Styling for dynamic values */
+.countdown::before {
+  content: var(--value);
+  font-weight: bold;
+  /* Add any other styling you need */
 }
