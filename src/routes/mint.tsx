@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../contexts/authContext';
 
 export default function Mint() {
   const Card = ({
@@ -28,8 +29,15 @@ export default function Mint() {
           <p className="h-24">{cityDescription}</p>
           <div className="card-actions justify-end">
             <button
-              className="btn bg-primary text-base-100"
-              onClick={() => document.getElementById(`${cityId}`).showModal()}
+              className="btn rounded bg-primary p-2 px-6 mr-4 text-base-100 font-bold"
+              onClick={() => {
+                const loginDialog = document.getElementById(
+                  `${cityId}`,
+                ) as HTMLDialogElement;
+                if (loginDialog) {
+                  loginDialog.showModal();
+                }
+              }}
             >
               Select
             </button>
@@ -94,7 +102,7 @@ export default function Mint() {
     );
   };
 
-  const Countdown = ({ targetDate }) => {
+  const Countdown = ({ targetDate }: { targetDate: Date }) => {
     const [days, setDays] = useState(0);
     const [hours, setHours] = useState(0);
     const [mins, setMins] = useState(0);
@@ -102,7 +110,7 @@ export default function Mint() {
     useEffect(() => {
       const interval = setInterval(() => {
         const now = new Date().getTime();
-        const diff = Math.max((targetDate - now) / 1000, 0); // difference in seconds
+        const diff = Math.max((Number(targetDate) - now) / 1000, 0); // difference in seconds
 
         const days = Math.floor(diff / 60 / 60 / 24);
         const hours = Math.floor(diff / 60 / 60) % 24;
@@ -177,28 +185,86 @@ export default function Mint() {
 
   const targetDate = new Date('2024-01-31T00:00:00');
   targetDate.setDate(targetDate.getDate() + 1); // set target date to 1 day in the future
+  const auth = useAuth();
+  const { login } = useAuth();
 
   return (
     <div className="flex flex-col justify-center">
-      <div className="flex items-center justify-center">
-        <div className="aspect-w-16 aspect-h-9">
-          <img
-            src="./assets/longlogo.png"
-            className="object-cover py-6"
-            height={'200'}
-            width={'200'}
-          ></img>
+      <div className="flex justify-between items-center py-6">
+        <div className="flex justify-center  ">
+          <div className="aspect-w-16 aspect-h-9 ml-20 items-start">
+            <img
+              src="./assets/longlogo.png"
+              className="object-cover py-6"
+              height={'200'}
+              width={'200'}
+            ></img>
+          </div>
         </div>
-      </div>
-      <div className="flex justify-center items-center pb-20 ">
-        <Countdown targetDate={targetDate} />
+        <div className="flex justify-center mr-40 items-center  ">
+          <Countdown targetDate={targetDate} />
+        </div>
+        {auth.isAuthenticated ? (
+          <div></div>
+        ) : (
+          <button
+            className="btn rounded bg-primary p-2 px-6 mr-4 text-base-100 font-bold"
+            onClick={() => {
+              const loginDialog = document.getElementById(
+                'login',
+              ) as HTMLDialogElement;
+              if (loginDialog) {
+                loginDialog.showModal();
+              }
+            }}
+          >
+            Open Login Dialog
+          </button>
+        )}
       </div>
 
-      <div className="flex flex-row sm:flex-row justify-between items-center  rounded rounded-lg gap-4 mb-10 p-6 ">
+      <div className="flex flex-row sm:flex-row justify-between items-center  rounded rounded-lg gap-4 mb-10 p-6 mt-24 ">
         {cards.map((card) => (
           <Card key={card.cityId} {...card} />
         ))}
       </div>
+      <dialog id={'login'} className="modal bg-base-100 bg-opacity-80">
+        <div className="modal-box bg-primary max-w-[300px]">
+          <div className="rounded-xl ">
+            <div className="btn flex justify-center" onClick={login}>
+              <img
+                src="./assets/ii.png"
+                className="object-cover  "
+                height={'120'}
+                width={'120'}
+              ></img>
+            </div>
+          </div>
+          <div className="mt-4 ">
+            <div className="btn flex justify-center items-start">
+              <img
+                src="./assets/is.png"
+                className="object-cover mt-2 "
+                height={'150'}
+                width={'150'}
+              ></img>
+            </div>
+          </div>
+          <div className="mt-4 ">
+            <div className="btn flex justify-center items-start">
+              <img
+                src="./assets/pl.png"
+                className="object-cover mt-1 "
+                height={'50'}
+                width={'80'}
+              ></img>
+            </div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 }
