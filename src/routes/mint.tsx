@@ -187,6 +187,25 @@ export default function Mint() {
   targetDate.setDate(targetDate.getDate() + 1); // set target date to 1 day in the future
   const auth = useAuth();
   const { login } = useAuth();
+  const [principalId, setPrincipalId] = useState('');
+
+  const handleLogin = async (walletType: string) => {
+    const wallet = window.ic[walletType];
+    const connected = await wallet.isConnected();
+    console.log('connected', connected);
+    if (!connected) {
+      await wallet.requestConnect();
+    }
+    if (walletType === 'plug') {
+      setPrincipalId(await wallet.principalId);
+    } else if (walletType === 'infinityWallet') {
+      setPrincipalId(await wallet.getPrincipal());
+    }
+    document.getElementById('wallet-button')?.remove();
+  };
+
+  const infinityWalletLogin = () => handleLogin('infinityWallet');
+  const plugLogin = () => handleLogin('plug');
 
   return (
     <div className="flex flex-col justify-center">
@@ -205,10 +224,11 @@ export default function Mint() {
           <Countdown targetDate={targetDate} />
         </div>
         {auth.isAuthenticated ? (
-          <div></div>
+          <div>{principalId}</div>
         ) : (
           <button
             className="btn rounded bg-primary p-2 px-6 mr-4 text-base-100 font-bold"
+            id="wallet-button"
             onClick={() => {
               const loginDialog = document.getElementById(
                 'login',
@@ -218,7 +238,7 @@ export default function Mint() {
               }
             }}
           >
-            Open Login Dialog
+            Connect Wallet
           </button>
         )}
       </div>
@@ -241,7 +261,10 @@ export default function Mint() {
             </div>
           </div>
           <div className="mt-4 ">
-            <div className="btn flex justify-center items-start">
+            <div
+              className="btn flex justify-center items-start"
+              onClick={infinityWalletLogin}
+            >
               <img
                 src="./assets/is.png"
                 className="object-cover mt-2 "
@@ -251,7 +274,10 @@ export default function Mint() {
             </div>
           </div>
           <div className="mt-4 ">
-            <div className="btn flex justify-center items-start">
+            <div
+              className="btn flex justify-center items-start"
+              onClick={plugLogin}
+            >
               <img
                 src="./assets/pl.png"
                 className="object-cover mt-1 "
