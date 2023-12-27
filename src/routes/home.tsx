@@ -5,6 +5,7 @@ import { AuthClient } from '@dfinity/auth-client';
 import { Actor, ActorMethod, HttpAgent } from '@dfinity/agent';
 import type { Principal } from '@dfinity/principal';
 import { useAuth } from '../contexts/authContext';
+import { IconWallet } from '@tabler/icons-react';
 
 export default function Home() {
   // Define the props for the StockChart component
@@ -14,6 +15,21 @@ export default function Home() {
     width: 300,
     height: 100,
     margin: { top: 10, right: 10, bottom: 10, left: 10 },
+  };
+  const handleLogin = (type: string) => {
+    localStorage.setItem('identityProvider', type);
+    login(type);
+    const loginDialog = document.getElementById('login') as HTMLDialogElement;
+    if (loginDialog) {
+      loginDialog.close();
+    }
+    auth.setIsAuthenticated(true);
+    setTimeout(handleLogout, 2000 * 1000);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('identityProvider');
+    auth.setIsAuthenticated(false);
   };
 
   return (
@@ -30,11 +46,28 @@ export default function Home() {
           </div>
           <div className="flex-grow flex justify-center"></div>
           {auth.isAuthenticated ? (
-            <div></div>
+            <details className="dropdown mr-4 ">
+              <summary className="m-1 btn bg-primary text-base-100">
+                <IconWallet /> Wallet{' '}
+              </summary>
+
+              <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-32 mr-10 ">
+                <li>
+                  <a onClick={handleLogout}>Log Out</a>
+                </li>
+              </ul>
+            </details>
           ) : (
             <button
-              className="btn rounded bg-primary p-2 px-6 mr-4"
-              onClick={login}
+              className="btn rounded bg-primary p-2 px-6 mr-4 text-base-100"
+              onClick={() => {
+                const loginDialog = document.getElementById(
+                  'login',
+                ) as HTMLDialogElement;
+                if (loginDialog) {
+                  loginDialog.showModal();
+                }
+              }}
             >
               Login
             </button>
@@ -97,6 +130,52 @@ export default function Home() {
           <div>{'CHART PLACEHOLDER'}</div>
         </div>
       </div>
+      <dialog id={'login'} className="modal bg-base-100 bg-opacity-80">
+        <div className="modal-box bg-primary max-w-[300px]">
+          <div className="rounded-xl ">
+            <div
+              className="btn flex justify-center"
+              onClick={() => handleLogin('ii')}
+            >
+              <img
+                src="./assets/ii.png"
+                className="object-cover  "
+                height={'120'}
+                width={'120'}
+              ></img>
+            </div>
+          </div>
+          <div className="mt-4 ">
+            <div
+              className="btn flex justify-center items-start"
+              onClick={() => handleLogin('if')}
+            >
+              <img
+                src="./assets/is.png"
+                className="object-cover mt-2 "
+                height={'150'}
+                width={'150'}
+              ></img>
+            </div>
+          </div>
+          <div className="mt-4 ">
+            <div
+              className="btn flex justify-center items-start"
+              onClick={() => handleLogin('plug')}
+            >
+              <img
+                src="./assets/pl.png"
+                className="object-cover mt-1 "
+                height={'50'}
+                width={'80'}
+              ></img>
+            </div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 }

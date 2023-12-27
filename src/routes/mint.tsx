@@ -42,7 +42,7 @@ export default function Mint() {
           <p className="h-24">{cityDescription}</p>
           <div className="card-actions justify-end">
             <button
-              className="btn rounded bg-primary p-2 px-6 mr-4 text-base-100 font-bold"
+              className="btn rounded bg-base-100 text-gray-400 hover:bg-primary hover:text-base-100 border-primary"
               onClick={() => {
                 const loginDialog = document.getElementById(
                   `${cityId}`,
@@ -205,13 +205,16 @@ export default function Mint() {
   const handleLogin = (type: string) => {
     localStorage.setItem('identityProvider', type);
     login(type);
+    const loginDialog = document.getElementById('login') as HTMLDialogElement;
+    if (loginDialog) {
+      loginDialog.close();
+    }
     auth.setIsAuthenticated(true);
     setTimeout(handleLogout, 2000 * 1000);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('identityProvider');
-    console.log(localStorage.getItem('identityProvider'));
     auth.setIsAuthenticated(false);
   };
 
@@ -233,11 +236,11 @@ export default function Mint() {
         </div>
         {auth.isAuthenticated ? (
           <details className="dropdown mr-10 ">
-            <summary className="m-1 btn bg-primary text-base-100">
+            <summary className="m-1 btn bg-base-100 text-gray-400 hover:bg-primary hover:text-base-100 border-primary">
               <IconWallet /> Wallet{' '}
             </summary>
 
-            <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-32 mr-10 ">
+            <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-32 mr-10  ">
               <li>
                 <a onClick={handleLogout}>Log Out</a>
               </li>
