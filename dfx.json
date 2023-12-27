@@ -12,6 +12,10 @@
         "entrypoint": "src/index.html"
       }
     },
+    "icrc1": {
+      "type": "motoko",
+      "main": "backend/ICRC1/Canisters/Token.mo"
+    },
     "internet_identity": {
       "type": "pull",
       "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
