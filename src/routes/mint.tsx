@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../contexts/authContext';
+import { IconWallet } from '@tabler/icons-react';
+
+declare global {
+  interface Window {
+    ic: any;
+  }
+}
 
 export default function Mint() {
   const Card = ({
@@ -16,7 +23,7 @@ export default function Mint() {
     const [selected, setSelected] = useState('5 ICP');
 
     return (
-      <div className="card w-full sm:w-96 glass bg-base-100  transition-transform duration-500 ease-in-out transform shadow-2xl hover:scale-105 hover:shadow-primary ">
+      <div className="card w-full sm:w-96 bg-base-200  transition-transform duration-500 ease-in-out transform shadow-2xl hover:scale-105 hover:shadow-primary ">
         <figure className="h-64 overflow-hidden">
           <img
             src={cityImage}
@@ -25,7 +32,13 @@ export default function Mint() {
           />
         </figure>
         <div className="card-body">
-          <h2 className="card-title text-white">{cityName}</h2>
+          <div className="join flex justify-between items-center">
+            <h2 className="card-title text-white">{cityName}</h2>{' '}
+            <div className="badge bg-primary text-base-100 ">0 ICP</div>
+          </div>
+
+          <progress className="progress w-full" value={0} max="100"></progress>
+
           <p className="h-24">{cityDescription}</p>
           <div className="card-actions justify-end">
             <button
@@ -189,29 +202,24 @@ export default function Mint() {
   const { login } = useAuth();
   const [principalId, setPrincipalId] = useState('');
 
-  const handleLogin = async (walletType: string) => {
-    const wallet = window.ic[walletType];
-    const connected = await wallet.isConnected();
-    console.log('connected', connected);
-    if (!connected) {
-      await wallet.requestConnect();
-    }
-    if (walletType === 'plug') {
-      setPrincipalId(await wallet.principalId);
-    } else if (walletType === 'infinityWallet') {
-      setPrincipalId(await wallet.getPrincipal());
-    }
-    document.getElementById('wallet-button')?.remove();
+  const handleLogin = (type: string) => {
+    localStorage.setItem('identityProvider', type);
+    login(type);
+    auth.setIsAuthenticated(true);
+    setTimeout(handleLogout, 2000 * 1000);
   };
 
-  const infinityWalletLogin = () => handleLogin('infinityWallet');
-  const plugLogin = () => handleLogin('plug');
+  const handleLogout = () => {
+    localStorage.removeItem('identityProvider');
+    console.log(localStorage.getItem('identityProvider'));
+    auth.setIsAuthenticated(false);
+  };
 
   return (
     <div className="flex flex-col justify-center">
-      <div className="flex justify-between items-center py-6">
+      <div className="flex justify-between items-center py-6 bg-base-200 rounded-b-lg border-b border-primary">
         <div className="flex justify-center  ">
-          <div className="aspect-w-16 aspect-h-9 ml-20 items-start">
+          <div className="aspect-w-16 aspect-h-9 ml-10 items-start">
             <img
               src="./assets/longlogo.png"
               className="object-cover py-6"
@@ -224,7 +232,17 @@ export default function Mint() {
           <Countdown targetDate={targetDate} />
         </div>
         {auth.isAuthenticated ? (
-          <div>{principalId}</div>
+          <details className="dropdown mr-10 ">
+            <summary className="m-1 btn bg-primary text-base-100">
+              <IconWallet /> Wallet{' '}
+            </summary>
+
+            <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-32 mr-10 ">
+              <li>
+                <a onClick={handleLogout}>Log Out</a>
+              </li>
+            </ul>
+          </details>
         ) : (
           <button
             className="btn rounded bg-primary p-2 px-6 mr-4 text-base-100 font-bold"
@@ -251,7 +269,10 @@ export default function Mint() {
       <dialog id={'login'} className="modal bg-base-100 bg-opacity-80">
         <div className="modal-box bg-primary max-w-[300px]">
           <div className="rounded-xl ">
-            <div className="btn flex justify-center" onClick={login}>
+            <div
+              className="btn flex justify-center"
+              onClick={() => handleLogin('ii')}
+            >
               <img
                 src="./assets/ii.png"
                 className="object-cover  "
@@ -263,7 +284,7 @@ export default function Mint() {
           <div className="mt-4 ">
             <div
               className="btn flex justify-center items-start"
-              onClick={infinityWalletLogin}
+              onClick={() => handleLogin('if')}
             >
               <img
                 src="./assets/is.png"
@@ -276,7 +297,7 @@ export default function Mint() {
           <div className="mt-4 ">
             <div
               className="btn flex justify-center items-start"
-              onClick={plugLogin}
+              onClick={() => handleLogin('plug')}
             >
               <img
                 src="./assets/pl.png"

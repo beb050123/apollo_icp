@@ -4,12 +4,13 @@ import { canisterId, createActor } from '../declarations/whoami';
 
 const AuthContext = createContext({
   isAuthenticated: false,
-  login: () => {},
+  login: (type: string) => {},
   logout: () => {},
   authClient: null,
   identity: null,
   principal: null,
   whoamiActor: null,
+  setIsAuthenticated: (isAuthenticated: boolean) => {},
 });
 
 const days = BigInt(1);
@@ -27,6 +28,7 @@ export const defaultOptions = {
       process.env.DFX_NETWORK === 'ic'
         ? 'https://identity.ic0.app/#authorize'
         : `http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943`,
+
     // Maximum authorization expiration is 8 days
     maxTimeToLive: days * hours * nanoseconds,
     kind: 'authorize-client',
@@ -46,55 +48,112 @@ export const useAuthClient = (options = defaultOptions) => {
   const [identity, setIdentity] = useState(null);
   const [principal, setPrincipal] = useState(null);
   const [whoamiActor, setWhoamiActor] = useState(null);
+  const [selectedAuthType, setselectedAuthType] = useState(null);
 
   useEffect(() => {
-    // Initialize AuthClient
-    AuthClient.create(options.createOptions).then(async (client) => {
-      console.log(client);
-      updateClient(client);
-    });
+    const initializeClient = async () => {
+      const storedIdentityProvider = localStorage.getItem('identityProvider');
+
+      if (storedIdentityProvider) {
+        if (storedIdentityProvider === 'if') {
+          let client = window.ic.infinityWallet;
+          updateClient(client, 'if');
+        } else if (storedIdentityProvider === 'plug') {
+          let client = window.ic.plug;
+          updateClient(client, 'plug');
+        }
+      }
+    };
+
+    initializeClient();
   }, []);
 
-  const login = () => {
-    if (authClient !== null) {
-      (authClient as AuthClient).login({
-        ...options.loginOptions,
-        onSuccess: () => {
-          updateClient(authClient);
-          console.log(authClient);
-        },
-      });
+  const login = async (type: string) => {
+    if (type == 'ii') {
+      if (authClient) {
+        (authClient as AuthClient).login({
+          ...options.loginOptions,
+          onSuccess: () => {
+            updateClient(authClient, 'ii');
+            console.log(authClient);
+          },
+        });
+      }
+    } else if (type == 'if') {
+      let client = window.ic.infinityWallet;
+      console.log('login hit');
+      await updateClient(client, 'if');
+    } else if (type == 'plug') {
+      let client = window.ic.plug;
+      await updateClient(client, 'plug');
     }
   };
 
-  async function updateClient(client: any) {
-    const isAuthenticated = await client.isAuthenticated();
-    console.log('isAuthenticated', isAuthenticated);
-    setIsAuthenticated(isAuthenticated);
+  async function updateClient(client: any, type: string) {
+    try {
+      let identity;
+      let principal;
+      let actor;
 
-    const identity = client.getIdentity();
-    console.log('identity', identity);
-    setIdentity(identity);
+      if (type === 'ii') {
+        let connectionStatus = await client.isAuthenticated();
+        identity = client.getIdentity();
+        setIdentity(identity);
+        setPrincipal(identity.getPrincipal());
+        setAuthClient(client);
 
-    const principal = identity.getPrincipal();
-    console.log('principal', principal);
-    setPrincipal(principal);
+        actor = createActor(canisterId, {
+          agentOptions: {
+            identity,
+          },
+        });
 
-    setAuthClient(client);
+        setWhoamiActor(actor as any);
+      } else if (type === 'if') {
+        const connectionStatus = await client.isConnected();
 
-    const actor = createActor(canisterId, {
-      agentOptions: {
-        identity,
-      },
-    });
+        if (!connectionStatus) {
+          const connection = await window.ic.infinityWallet.requestConnect();
+        } else {
+          setIsAuthenticated(true);
+          // Perform additional actions after successful login for 'if'
 
-    setWhoamiActor(actor as any);
+          // Optionally, create an actor here and assign it to the auth client
+          // actor = createActor(canisterId, {
+          //   agentOptions: {
+          //     identity: client.getIdentity(),
+          //   },
+          // });
+          // setWhoamiActor(actor as any);
+        }
+      } else if (type === 'plug') {
+        const connectionStatus = await client.isConnected();
+
+        if (!connectionStatus) {
+          const connection = await window.ic.plug.requestConnect();
+        } else {
+          setIsAuthenticated(true);
+          // Perform additional actions after successful login for 'plug'
+
+          // Optionally, create an actor here and assign it to the auth client
+          // actor = createActor(canisterId, {
+          //   agentOptions: {
+          //     identity: client.getIdentity(),
+          //   },
+          // });
+          // setWhoamiActor(actor as any);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating client:', error);
+      // Handle errors if needed
+    }
   }
 
   async function logout() {
     if (authClient) {
       await (authClient as AuthClient).logout();
-      await updateClient(authClient);
+      await updateClient(authClient, 'ii');
     }
   }
 
@@ -106,6 +165,7 @@ export const useAuthClient = (options = defaultOptions) => {
     identity,
     principal,
     whoamiActor,
+    setIsAuthenticated,
   };
 };
 

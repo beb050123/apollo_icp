@@ -7,7 +7,7 @@
     "frontend": {
       "dependencies": ["backend"],
       "type": "assets",
-      "source": ["dist/"],
+      "source": ["src/assets"],
       "frontend": {
         "entrypoint": "src/index.html"
       }
