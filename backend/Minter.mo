@@ -12,14 +12,16 @@ shared ({ caller = ledger_canister_id }) actor class Minter() : async Minter {
 
   public type User = {
     id : Principal;
+    city : Text;
     tokenAmount : Nat;
   };
 
   var users = Buffer.Buffer<User>(10);
 
-  public func addToUsers(principal : Text, tokens : Nat) {
+  public func addToUsers(principal : Text, city : Text, tokens : Nat) {
     let user : User = {
       id = Principal.fromText(principal);
+      city = city;
       tokenAmount = tokens;
     };
     users.add(user);
@@ -29,13 +31,13 @@ shared ({ caller = ledger_canister_id }) actor class Minter() : async Minter {
     return Buffer.toArray(users);
   };
 
-  public func getBalanceById(principal : Text) : async Nat {
+  public func getUserDataById(principal : Text) : async User {
     let targetId = Principal.fromText(principal);
     let index = binarySearch(users, targetId);
     if (index >= 0) {
-      return users.get(index).tokenAmount;
+      return users.get(index);
     } else {
-      return 0; // or handle not found case
+      return users.get(0); // or handle not found case
     };
   };
 
